@@ -2,7 +2,7 @@
 
 | 模块 | 状态 | 完成日期 | 笔记 |
 |------|------|----------|------|
-| M1 GPU 调度全链路 | 🔄 进行中 | | [M1-summary](./notes/M1-summary.md) |
+| M1 GPU 调度全链路 | ✅ 完成 | 2026-06-09 | [M1-summary](./notes/M1-summary.md) |
 | M2 Device Plugin & Operator | ⏳ 待开始 | | |
 | M3 GPU 共享与切分 | ⏳ 待开始 | | |
 | M4 调度器扩展 | ⏳ 待开始 | | |
@@ -11,4 +11,5 @@
 
 ## 更新日志
 
+- **2026-06-09**: 完成 M1 Lab（kind+KWOK），验证正常调度、nodeSelector、Insufficient GPU 三种场景
 - **2026-06-09**: 初始化仓库，完成 M1 课程大纲与 Lab 材料
