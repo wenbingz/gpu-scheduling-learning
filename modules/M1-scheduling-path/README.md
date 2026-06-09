@@ -107,16 +107,12 @@ kubectl describe pod gpu-test
 ### Lab 1B: 有 GPU 集群 — 追踪分配
 
 ```bash
-# 1. 看节点 GPU 资源
-kubectl describe node <gpu-node> | grep -A5 Allocatable
+# 一键排查（支持批量 Pod）
+./labs/M1/debug-commands.sh gpu-test
+./labs/M1/debug-commands.sh gpu-test-0 gpu-test-1 gpu-test-2
+./labs/M1/debug-commands.sh -n training worker-0 worker-1
 
-# 2. 看 Device Plugin Pod
-kubectl get pods -n kube-system -l app=nvidia-device-plugin-daemonset
-
-# 3. 部署 GPU Pod 后检查 env
-kubectl exec gpu-test -- env | grep NVIDIA
-
-# 4. 节点上验证
+# 节点上验证
 nvidia-smi  # 应看到对应进程
 ```
 
