@@ -40,6 +40,8 @@ gpu-scheduling-learning/
 
 ## 当前进度
 
+见 [PROGRESS.md](./PROGRESS.md)
+
 - [ ] M1: GPU 调度全链路
 - [ ] M2: Device Plugin & Operator
 - [ ] M3: GPU 共享与切分
