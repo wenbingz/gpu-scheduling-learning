@@ -1,4 +1,5 @@
 .DS_Store
+external/
 *.swp
 *.swo
 .idea/
