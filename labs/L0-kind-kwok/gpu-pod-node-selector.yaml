@@ -1,0 +1,21 @@
+# 按 GPU 型号选择节点 — 测试 nodeSelector
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-test-a100
+  labels:
+    app: gpu-scheduling-lab
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    nvidia.com/gpu.product: NVIDIA-A100-SXM4-80GB
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 2
