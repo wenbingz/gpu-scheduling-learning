@@ -1,0 +1,160 @@
+# Lab 3C: KWOK 模拟不同 GPU 共享方案的调度行为
+# 在 kind+KWOK 集群上运行，理解调度层面的差异
+---
+# 场景 1: 整卡 — 1 Pod 占 1 卡
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-whole
+spec:
+  restartPolicy: Never
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+# 场景 2: Time-Slicing 模拟 — 节点上报 16 卡（实际 4 物理 × replicas:4）
+# 通过扩大 fake 节点 allocatable 来模拟
+apiVersion: v1
+kind: Node
+metadata:
+  name: fake-gpu-node-timeslice
+  annotations:
+    kwok.x-k8s.io/node: fake
+  labels:
+    nvidia.com/gpu.product: NVIDIA-T4
+    gpu-sharing: time-slicing
+spec:
+  taints:
+    - key: kwok.x-k8s.io/node
+      effect: NoSchedule
+status:
+  allocatable:
+    cpu: "32"
+    memory: 128Gi
+    nvidia.com/gpu: "16"    # 模拟: 4 物理卡 × 4 replicas
+    pods: "110"
+  capacity:
+    cpu: "32"
+    memory: 128Gi
+    nvidia.com/gpu: "16"
+    pods: "110"
+  nodeInfo:
+    architecture: arm64
+    bootID: boot-ts
+    containerRuntimeVersion: kwok://0.6.1
+    kernelVersion: 6.8.0-fake
+    kubeProxyVersion: kwok://0.6.1
+    kubeletVersion: v1.36.1
+    machineID: machine-ts
+    operatingSystem: linux
+    osImage: kwok fake node
+    systemUUID: uuid-ts
+  phase: Running
+---
+# Time-Slicing Pod 1
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-timeslice-1
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    gpu-sharing: time-slicing
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+# Time-Slicing Pod 2 — 同节点再调度 1 卡
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-timeslice-2
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    gpu-sharing: time-slicing
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+# 场景 3: MIG 模拟 — 节点上报 mig slice 而非整卡
+apiVersion: v1
+kind: Node
+metadata:
+  name: fake-gpu-node-mig
+  annotations:
+    kwok.x-k8s.io/node: fake
+  labels:
+    nvidia.com/gpu.product: NVIDIA-A100-SXM4-80GB
+    nvidia.com/mig.capable: "true"
+    gpu-sharing: mig
+spec:
+  taints:
+    - key: kwok.x-k8s.io/node
+      effect: NoSchedule
+status:
+  allocatable:
+    cpu: "64"
+    memory: 512Gi
+    nvidia.com/gpu: "0"               # 整卡不报
+    nvidia.com/mig-1g.5gb: "7"        # 7 个 MIG slice
+    pods: "110"
+  capacity:
+    cpu: "64"
+    memory: 512Gi
+    nvidia.com/gpu: "0"
+    nvidia.com/mig-1g.5gb: "7"
+    pods: "110"
+  nodeInfo:
+    architecture: arm64
+    bootID: boot-mig
+    containerRuntimeVersion: kwok://0.6.1
+    kernelVersion: 6.8.0-fake
+    kubeProxyVersion: kwok://0.6.1
+    kubeletVersion: v1.36.1
+    machineID: machine-mig
+    operatingSystem: linux
+    osImage: kwok fake node
+    systemUUID: uuid-mig
+  phase: Running
+---
+# MIG Pod — 请求 slice 而非整卡
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-mig-slice
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    gpu-sharing: mig
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/mig-1g.5gb: 1

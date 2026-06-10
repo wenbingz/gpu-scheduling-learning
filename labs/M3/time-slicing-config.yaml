@@ -1,0 +1,16 @@
+# Lab 3A: Time-Slicing 配置示例
+# 注意: 仅在真实 GPU 节点上生效；kind 集群无 GPU 看不到效果
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nvidia-device-plugin-config
+  namespace: kube-system
+data:
+  config.yaml: |
+    version: v1
+    sharing:
+      timeSlicing:
+        resources:
+          - name: nvidia.com/gpu
+            replicas: 4    # 1 张物理卡 → 上报 4 个虚拟 GPU
+            # rename: nvidia.com/gpu.shared  # 可选：改用不同资源名
