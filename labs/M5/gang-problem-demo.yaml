@@ -1,0 +1,369 @@
+# Lab 5A: 复现 Gang Scheduling 问题（标准 scheduler）
+#
+# 场景: 8 卡节点上跑了 7 个 1 卡推理 Pod
+#       提交 8 卡训练 Job (8 worker × 1 GPU)
+#       标准 scheduler 只能调度 1 个 worker → 训练 hang
+---
+# 8 卡 A100 节点（独占，用于演示）
+apiVersion: v1
+kind: Node
+metadata:
+  name: fake-gpu-node-gang-demo
+  annotations:
+    kwok.x-k8s.io/node: fake
+  labels:
+    kubernetes.io/hostname: fake-gpu-node-gang-demo
+    nvidia.com/gpu.product: NVIDIA-A100-SXM4-80GB
+    demo: gang-problem
+spec:
+  taints:
+    - key: kwok.x-k8s.io/node
+      effect: NoSchedule
+status:
+  allocatable:
+    cpu: "64"
+    memory: 512Gi
+    nvidia.com/gpu: "8"
+    pods: "110"
+  capacity:
+    cpu: "64"
+    memory: 512Gi
+    nvidia.com/gpu: "8"
+    pods: "110"
+  nodeInfo:
+    architecture: arm64
+    bootID: boot-gang
+    containerRuntimeVersion: kwok://0.6.1
+    kernelVersion: 6.8.0-fake
+    kubeProxyVersion: kwok://0.6.1
+    kubeletVersion: v1.36.1
+    machineID: machine-gang
+    operatingSystem: linux
+    osImage: kwok fake node
+    systemUUID: uuid-gang
+  phase: Running
+---
+# 7 个推理 Pod 占满 7 卡
+apiVersion: v1
+kind: Pod
+metadata:
+  name: inference-blocker-0
+  labels:
+    app: inference-blocker
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    demo: gang-problem
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: inference-blocker-1
+  labels:
+    app: inference-blocker
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    demo: gang-problem
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: inference-blocker-2
+  labels:
+    app: inference-blocker
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    demo: gang-problem
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: inference-blocker-3
+  labels:
+    app: inference-blocker
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    demo: gang-problem
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: inference-blocker-4
+  labels:
+    app: inference-blocker
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    demo: gang-problem
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: inference-blocker-5
+  labels:
+    app: inference-blocker
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    demo: gang-problem
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: inference-blocker-6
+  labels:
+    app: inference-blocker
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    demo: gang-problem
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+# 8 卡训练 Job 的 8 个 worker（模拟 Gang，但无 Volcano）
+apiVersion: v1
+kind: Pod
+metadata:
+  name: train-gang-worker-0
+  labels:
+    job: llm-train-gang
+    role: worker
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    demo: gang-problem
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: train-gang-worker-1
+  labels:
+    job: llm-train-gang
+    role: worker
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    demo: gang-problem
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: train-gang-worker-2
+  labels:
+    job: llm-train-gang
+    role: worker
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    demo: gang-problem
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: train-gang-worker-3
+  labels:
+    job: llm-train-gang
+    role: worker
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    demo: gang-problem
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: train-gang-worker-4
+  labels:
+    job: llm-train-gang
+    role: worker
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    demo: gang-problem
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: train-gang-worker-5
+  labels:
+    job: llm-train-gang
+    role: worker
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    demo: gang-problem
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: train-gang-worker-6
+  labels:
+    job: llm-train-gang
+    role: worker
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    demo: gang-problem
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: train-gang-worker-7
+  labels:
+    job: llm-train-gang
+    role: worker
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    demo: gang-problem
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1

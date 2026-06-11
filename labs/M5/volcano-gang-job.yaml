@@ -1,0 +1,46 @@
+# Lab 5B: Volcano Gang Job 示例（需先安装 Volcano）
+# kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/master/installer/volcano-development.yaml
+---
+apiVersion: scheduling.volcano.sh/v1beta1
+kind: Queue
+metadata:
+  name: gpu-training
+spec:
+  weight: 1
+  capability:
+    nvidia.com/gpu: 64
+---
+apiVersion: scheduling.volcano.sh/v1beta1
+kind: PodGroup
+metadata:
+  name: llm-train-8gpu
+  namespace: default
+spec:
+  minMember: 8
+  queue: gpu-training
+  minResources:
+    nvidia.com/gpu: 8
+---
+apiVersion: batch.volcano.sh/v1alpha1
+kind: Job
+metadata:
+  name: llm-train-gang
+spec:
+  schedulerName: volcano
+  minAvailable: 8
+  queue: gpu-training
+  tasks:
+    - replicas: 8
+      name: worker
+      template:
+        metadata:
+          annotations:
+            scheduling.k8s.io/group-name: llm-train-8gpu
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: train
+              image: registry.k8s.io/pause:3.10
+              resources:
+                limits:
+                  nvidia.com/gpu: 1
