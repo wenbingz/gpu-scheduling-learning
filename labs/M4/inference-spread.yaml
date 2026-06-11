@@ -1,0 +1,79 @@
+# Lab 4B: 推理服务 — 尽量 Spread 到不同节点
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: inference-0
+  labels:
+    app: inference
+spec:
+  restartPolicy: Never
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app: inference
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: inference-1
+  labels:
+    app: inference
+spec:
+  restartPolicy: Never
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app: inference
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: inference-2
+  labels:
+    app: inference
+spec:
+  restartPolicy: Never
+  tolerations:
+    - key: kwok.x-k8s.io/node
+      operator: Exists
+      effect: NoSchedule
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app: inference
+  containers:
+    - name: pause
+      image: registry.k8s.io/pause:3.10
+      resources:
+        limits:
+          nvidia.com/gpu: 1
