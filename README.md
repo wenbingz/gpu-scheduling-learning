@@ -47,9 +47,9 @@ gpu-scheduling-learning/
 - [x] M3: GPU 共享与切分
 - [x] M4: 调度器扩展
 - [x] M5: 批调度 & 队列
-- [ ] M6: 生产级专题
+- [x] M6: 生产级专题
 
-完整知识速查: [CHEATSHEET.md](./CHEATSHEET.md)
+**🎓 学习计划已全部完成！** 速查: [CHEATSHEET.md](./CHEATSHEET.md)
 
 ## 实验环境选项
 

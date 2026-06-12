@@ -7,10 +7,13 @@
 | M3 GPU 共享与切分 | ✅ 完成 | 2026-06-09 | [M3-summary](./notes/M3-summary.md) |
 | M4 调度器扩展 | ✅ 完成 | 2026-06-09 | [M4-summary](./notes/M4-summary.md) |
 | M5 批调度 & 队列 | ✅ 完成 | 2026-06-11 | [M5-summary](./notes/M5-summary.md) |
-| M6 生产级专题 | 🔄 进行中 | | [M6-summary](./notes/M6-summary.md) |
+| M6 生产级专题 | ✅ 完成 | 2026-06-11 | [M6-summary](./notes/M6-summary.md) |
+
+**🎓 全部 6 模块已完成**
 
 ## 更新日志
 
+- **2026-06-11**: 🎓 完成 M6 及全部 6 模块学习计划
 - **2026-06-11**: 开始 M6，新增 GPUTide 状态机、健康巡检脚本、CHEATSHEET
 - **2026-06-11**: 完成 M5，理解 Gang Scheduling 与 Volcano/Kueue 队列体系
 - **2026-06-09**: 开始 M5，新增 Gang 问题复现 Lab 与 Volcano/Kueue 示例
