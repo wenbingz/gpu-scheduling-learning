@@ -46,7 +46,7 @@ gpu-scheduling-learning/
 - [x] M2: Device Plugin & Operator
 - [x] M3: GPU 共享与切分
 - [x] M4: 调度器扩展
-- [ ] M5: 批调度 & 队列
+- [x] M5: 批调度 & 队列
 - [ ] M6: 生产级专题
 
 ## 实验环境选项
