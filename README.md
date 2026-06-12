@@ -49,6 +49,8 @@ gpu-scheduling-learning/
 - [x] M5: 批调度 & 队列
 - [ ] M6: 生产级专题
 
+完整知识速查: [CHEATSHEET.md](./CHEATSHEET.md)
+
 ## 实验环境选项
 
 | 环境 | 适用模块 | 说明 |
